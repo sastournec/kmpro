@@ -627,22 +627,7 @@
 	<body>
 		<div class="app-header">
 			<div class="app-logo">Km<span>Pro</span></div>
-			<div class="header-actions">
-				<div
-					class="btn-icon"
-					onclick="openModal('bareme-modal')"
-					title="Barème"
-				>
-					📊
-				</div>
-				<div
-					class="btn-icon"
-					onclick="openModal('export-modal')"
-					title="Export"
-				>
-					📤
-				</div>
-			</div>
+			
 		</div>
 
 		<!-- VUE SEMAINE -->
@@ -661,22 +646,24 @@
 		</div>
 
 		<!-- BOTTOM BAR -->
-		<div class="bottom-bar" id="bottom-bar-week">
-			<button
-				class="bottom-btn"
-				onclick="openModal('bareme-modal')"
-			>
-				<span class="bb-icon">📊</span>
-				<span>Barème</span>
-			</button>
-			<button
-				class="bottom-btn"
-				onclick="openModal('export-modal')"
-			>
-				<span class="bb-icon">📤</span>
-				<span>Export</span>
-			</button>
-		</div>
+		<div class="bottom-bar">
+
+  <!-- BARÈME -->
+  <button onclick="openModal('bareme-modal')">
+    ⚙️ Barème
+  </button>
+
+  <!-- EXPORT CSV -->
+  <button onclick="openModal('export-modal')">
+    ⬇ CSV
+  </button>
+
+  <!-- SAUVEGARDE -->
+  <button onclick="openModal('backup-modal')">
+    💾 Sauvegarde
+  </button>
+
+</div>
 
 		<!-- MODAL BARÈME -->
 		<div
@@ -754,6 +741,38 @@
 		</div>
 
 		<script>
+
+
+			//============================================
+			// MODAL SAUVEGARDE
+			//============================================
+
+			<div id="backup-modal" class="modal">
+  <div class="modal-content">
+
+    <h3>Sauvegarde des données</h3>
+
+    <button class="btn-export" onclick="exportBackup()">
+      💾 Exporter (JSON)
+    </button>
+
+    <input 
+      type="file" 
+      id="importFile" 
+      accept=".json"
+      style="margin-top:10px;"
+    />
+
+    <button class="btn-close-modal" onclick="importBackup()">
+      📥 Importer
+    </button>
+
+    <button class="btn-close-modal" onclick="closeModal('backup-modal')">
+      Fermer
+    </button>
+
+  </div>
+</div>
 			// ═══════════════════════════════════════════
 			//  DONNÉES
 			// ═══════════════════════════════════════════
@@ -1438,6 +1457,44 @@ pattern="[0-9]*"
 				URL.revokeObjectURL(url);
 				closeModal("export-modal");
 			}
+
+			function exportBackup() {
+  const blob = new Blob([JSON.stringify(db)], {
+    type: "application/json",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "kmpro-backup.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+			function importBackup() {
+  const fileInput = document.getElementById("importFile");
+  const file = fileInput.files[0];
+
+  if (!file) return alert("Choisir un fichier");
+
+  const reader = new FileReader();
+
+  reader.onload = async function (e) {
+    try {
+      const data = JSON.parse(e.target.result);
+
+      db = data;
+      await saveData(db);
+
+      alert("Sauvegarde restaurée !");
+      location.reload();
+    } catch (err) {
+      alert("Fichier invalide");
+    }
+  };
+
+  reader.readAsText(file);
+}
 
 			// ═══════════════════════════════════════════
 			//  MODALS
