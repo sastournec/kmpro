@@ -624,6 +624,11 @@
 			}
 		</style>
 	</head>
+	<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/kmpro/service-worker.js");
+}
+</script>
 	<body>
 		<div class="app-header">
 			<div class="app-logo">Km<span>Pro</span></div>
