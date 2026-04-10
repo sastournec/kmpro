@@ -1,0 +1,1471 @@
+<!doctype html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		/>
+		<meta name="theme-color" content="#1a1a2e" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta
+			name="apple-mobile-web-app-status-bar-style"
+			content="black-translucent"
+		/>
+		<meta name="apple-mobile-web-app-title" content="KmPro" />
+		<title>KmPro</title>
+		<link rel="manifest" href="manifest.json" />
+		<style>
+			@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap");
+
+			:root {
+				--bg: #0f0f1a;
+				--surface: #1a1a2e;
+				--surface2: #22223d;
+				--accent: #e8ff47;
+				--accent2: #47c9ff;
+				--text: #f0f0f8;
+				--muted: #6b6b8a;
+				--danger: #ff4757;
+				--success: #2ed573;
+				--border: rgba(255, 255, 255, 0.07);
+				--radius: 16px;
+				--radius-sm: 10px;
+			}
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+				-webkit-tap-highlight-color: transparent;
+			}
+
+			body {
+				font-family: "DM Sans", sans-serif;
+				background: var(--bg);
+				color: var(--text);
+				min-height: 100dvh;
+				overflow-x: hidden;
+				overscroll-behavior: none;
+			}
+
+			/* ─── HEADER ─── */
+			.app-header {
+				position: sticky;
+				top: 0;
+				z-index: 100;
+				background: var(--bg);
+				border-bottom: 1px solid var(--border);
+				padding: 14px 20px 12px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+			.app-logo {
+				font-family: "Syne", sans-serif;
+				font-weight: 800;
+				font-size: 22px;
+				color: var(--accent);
+				letter-spacing: -0.5px;
+			}
+			.app-logo span {
+				color: var(--text);
+			}
+			.header-actions {
+				display: flex;
+				gap: 8px;
+			}
+			.btn-icon {
+				background: var(--surface2);
+				border: 1px solid var(--border);
+				color: var(--text);
+				width: 40px;
+				height: 40px;
+				border-radius: 12px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				font-size: 18px;
+				transition: background 0.15s;
+			}
+			.btn-icon:active {
+				background: var(--surface);
+			}
+
+			/* ─── VIEW TOGGLE ─── */
+			.view-toggle {
+				display: flex;
+				margin: 14px 20px 0;
+				background: var(--surface);
+				border-radius: 12px;
+				padding: 4px;
+				gap: 4px;
+			}
+			.view-btn {
+				flex: 1;
+				padding: 8px;
+				background: transparent;
+				border: none;
+				color: var(--muted);
+				font-family: "DM Sans", sans-serif;
+				font-weight: 500;
+				font-size: 14px;
+				border-radius: 9px;
+				cursor: pointer;
+				transition: all 0.2s;
+			}
+			.view-btn.active {
+				background: var(--accent);
+				color: #0f0f1a;
+			}
+
+			/* ─── NAVIGATION SEMAINE ─── */
+			.week-nav {
+				display: flex;
+				align-items: center;
+				padding: 14px 20px 10px;
+				gap: 12px;
+			}
+			.week-label {
+				flex: 1;
+				font-family: "Syne", sans-serif;
+				font-weight: 700;
+				font-size: 15px;
+				text-align: center;
+				color: var(--text);
+			}
+			.nav-arrow {
+				background: var(--surface2);
+				border: 1px solid var(--border);
+				color: var(--text);
+				width: 36px;
+				height: 36px;
+				border-radius: 10px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				font-size: 16px;
+			}
+			.nav-arrow:active {
+				opacity: 0.6;
+			}
+
+			/* ─── VUE SEMAINE ─── */
+			#week-view {
+				padding: 0 20px 100px;
+			}
+
+			.week-grid {
+				display: grid;
+				grid-template-columns: repeat(7, 1fr);
+				gap: 6px;
+				margin-top: 4px;
+				align-items: center;
+			}
+			.week-day-cell {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 12px;
+				padding: 8px 4px;
+				text-align: center;
+				cursor: pointer;
+				transition: all 0.15s;
+				min-height: 76px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: space-between;
+			}
+			.week-day-cell:active {
+				transform: scale(0.96);
+			}
+			.week-day-cell.today {
+				border: 2px solid var(--accent);
+				background: rgba(232, 255, 71, 0.08);
+				transform: scale(1.08);
+				z-index: 2;
+			}
+			.week-day-cell.has-data {
+				border-color: rgba(71, 201, 255, 0.3);
+			}
+			.week-day-cell.selected {
+				background: var(--accent);
+				color: #0f0f1a;
+				border-color: var(--accent);
+			}
+
+			.week-day-cell.selected .wdc-num,
+			.week-day-cell.selected .wdc-name,
+			.week-day-cell.selected .wdc-km {
+				color: #0f0f1a;
+			}
+			.week-day-cell.today.selected {
+				transform: scale(1.08);
+				border: 2px solid var(--accent);
+				background: var(--accent);
+			}
+			.wdc-name {
+				font-size: 10px;
+				font-weight: 500;
+				color: var(--muted);
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+			.wdc-num {
+				font-family: "Syne", sans-serif;
+				font-weight: 800;
+				font-size: 20px;
+				color: var(--text);
+				line-height: 1;
+			}
+			.today .wdc-num {
+				color: var(--accent);
+			}
+			.wdc-km {
+				font-family: "DM Mono", monospace;
+				font-size: 10px;
+				color: var(--accent2);
+				font-weight: 500;
+			}
+			.wdc-km.zero {
+				color: var(--muted);
+			}
+			#today-inline-container {
+				margin-top: 20px;
+			}
+
+			/* Totaux semaine */
+			.week-summary {
+				margin-top: 16px;
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				padding: 16px 18px;
+			}
+			.ws-title {
+				font-size: 11px;
+				font-weight: 500;
+				color: var(--muted);
+				text-transform: uppercase;
+				letter-spacing: 1px;
+				margin-bottom: 10px;
+			}
+			.ws-total {
+				font-family: "Syne", sans-serif;
+				font-weight: 800;
+				font-size: 32px;
+				color: var(--accent);
+			}
+			.ws-total span {
+				font-size: 16px;
+				font-weight: 500;
+				color: var(--muted);
+			}
+
+			/* Total jour bandeau */
+			.day-total-banner {
+				background: linear-gradient(
+					135deg,
+					rgba(232, 255, 71, 0.12),
+					rgba(71, 201, 255, 0.08)
+				);
+				border: 1px solid rgba(232, 255, 71, 0.25);
+				border-radius: var(--radius);
+				padding: 16px 18px;
+				margin-bottom: 16px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+			.dtb-label {
+				font-size: 12px;
+				color: var(--muted);
+				font-weight: 500;
+			}
+			.dtb-value {
+				font-family: "Syne", sans-serif;
+				font-weight: 800;
+				font-size: 28px;
+				color: var(--accent);
+			}
+			.dtb-value span {
+				font-size: 14px;
+				font-weight: 400;
+				color: var(--muted);
+			}
+
+			/* Trajets */
+			.trajet-card {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				padding: 16px;
+				margin-bottom: 12px;
+				position: relative;
+			}
+			.trajet-num {
+				font-size: 11px;
+				font-weight: 500;
+				color: var(--muted);
+				text-transform: uppercase;
+				letter-spacing: 0.8px;
+				margin-bottom: 12px;
+			}
+			.km-row {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				margin-bottom: 8px;
+			}
+			.km-label {
+				font-size: 12px;
+				color: var(--muted);
+				min-width: 70px;
+				font-weight: 500;
+			}
+			.km-input-wrap {
+				flex: 1;
+				position: relative;
+			}
+			.km-input {
+				width: 100%;
+				background: var(--surface2);
+				border: 1.5px solid var(--border);
+				border-radius: var(--radius-sm);
+				color: var(--text);
+				font-family: "DM Mono", monospace;
+				font-size: 18px;
+				font-weight: 500;
+				padding: 10px 14px;
+				outline: none;
+				text-align: right;
+				transition: border-color 0.15s;
+				-webkit-appearance: none;
+				appearance: none;
+			}
+			.km-input:focus {
+				border-color: var(--accent2);
+			}
+			.km-input::placeholder {
+				color: var(--muted);
+				font-size: 14px;
+			}
+
+			.trajet-result {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-top: 12px;
+				padding-top: 12px;
+				border-top: 1px solid var(--border);
+			}
+			.tr-label {
+				font-size: 12px;
+				color: var(--muted);
+			}
+			.tr-value {
+				font-family: "DM Mono", monospace;
+				font-size: 20px;
+				font-weight: 500;
+				color: var(--accent);
+			}
+			.tr-value.zero {
+				color: var(--muted);
+			}
+
+			.btn-delete-trajet {
+				position: absolute;
+				top: 14px;
+				right: 14px;
+				background: rgba(255, 71, 87, 0.1);
+				border: 1px solid rgba(255, 71, 87, 0.2);
+				color: var(--danger);
+				width: 28px;
+				height: 28px;
+				border-radius: 8px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				font-size: 14px;
+			}
+
+			.btn-add-trajet {
+				width: 100%;
+				background: transparent;
+				border: 1.5px dashed var(--border);
+				color: var(--muted);
+				font-family: "DM Sans", sans-serif;
+				font-size: 14px;
+				font-weight: 500;
+				padding: 14px;
+				border-radius: var(--radius);
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				transition: all 0.15s;
+				margin-bottom: 16px;
+			}
+			.btn-add-trajet:active {
+				background: var(--surface);
+				color: var(--text);
+			}
+
+			/* ─── TOTAUX PÉRIODES ─── */
+			.periods-grid {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 10px;
+				margin-top: 16px;
+			}
+			.period-card {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				padding: 14px 16px;
+			}
+			.pc-label {
+				font-size: 11px;
+				color: var(--muted);
+				text-transform: uppercase;
+				letter-spacing: 0.8px;
+				margin-bottom: 6px;
+			}
+			.pc-value {
+				font-family: "Syne", sans-serif;
+				font-weight: 800;
+				font-size: 22px;
+				color: var(--text);
+			}
+			.pc-value span {
+				font-size: 12px;
+				font-weight: 400;
+				color: var(--muted);
+			}
+
+			/* ─── MODAL BARÈME ─── */
+			.modal-overlay {
+				position: fixed;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.7);
+				z-index: 200;
+				display: none;
+				align-items: flex-end;
+				justify-content: center;
+			}
+			.modal-overlay.open {
+				display: flex;
+			}
+			.modal-sheet {
+				background: var(--surface);
+				border-radius: 24px 24px 0 0;
+				width: 100%;
+				max-width: 600px;
+				padding: 20px 20px 40px;
+				max-height: 80dvh;
+				overflow-y: auto;
+			}
+			.modal-handle {
+				width: 40px;
+				height: 4px;
+				background: var(--muted);
+				border-radius: 2px;
+				margin: 0 auto 20px;
+				opacity: 0.4;
+			}
+			.modal-title {
+				font-family: "Syne", sans-serif;
+				font-weight: 800;
+				font-size: 20px;
+				margin-bottom: 18px;
+			}
+
+			.bareme-select-wrap {
+				margin-bottom: 16px;
+			}
+			.bareme-label {
+				font-size: 12px;
+				color: var(--muted);
+				margin-bottom: 6px;
+			}
+			select {
+				width: 100%;
+				background: var(--surface2);
+				border: 1.5px solid var(--border);
+				border-radius: var(--radius-sm);
+				color: var(--text);
+				font-family: "DM Sans", sans-serif;
+				font-size: 15px;
+				padding: 11px 14px;
+				outline: none;
+				-webkit-appearance: none;
+				appearance: none;
+			}
+
+			.bareme-result-row {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 10px 0;
+				border-bottom: 1px solid var(--border);
+			}
+			.brr-label {
+				font-size: 13px;
+				color: var(--muted);
+			}
+			.brr-value {
+				font-family: "DM Mono", monospace;
+				font-size: 15px;
+				font-weight: 500;
+				color: var(--accent);
+			}
+
+			.btn-export {
+				width: 100%;
+				background: var(--accent);
+				border: none;
+				color: #0f0f1a;
+				font-family: "Syne", sans-serif;
+				font-weight: 700;
+				font-size: 16px;
+				padding: 15px;
+				border-radius: var(--radius);
+				cursor: pointer;
+				margin-top: 16px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+			}
+			.btn-export:active {
+				opacity: 0.85;
+			}
+
+			.btn-close-modal {
+				width: 100%;
+				background: transparent;
+				border: 1px solid var(--border);
+				color: var(--muted);
+				font-family: "DM Sans", sans-serif;
+				font-size: 15px;
+				padding: 13px;
+				border-radius: var(--radius);
+				cursor: pointer;
+				margin-top: 10px;
+			}
+
+			/* ─── BOTTOM TAB ─── */
+			.bottom-bar {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background: var(--bg);
+				border-top: 1px solid var(--border);
+				padding: 10px 20px 24px;
+				display: flex;
+				gap: 10px;
+				z-index: 90;
+			}
+			.bottom-btn {
+				flex: 1;
+				background: var(--surface);
+				border: 1px solid var(--border);
+				color: var(--muted);
+				font-family: "DM Sans", sans-serif;
+				font-size: 13px;
+				font-weight: 500;
+				padding: 11px 8px;
+				border-radius: 12px;
+				cursor: pointer;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 3px;
+				transition: all 0.15s;
+			}
+			.bottom-btn .bb-icon {
+				font-size: 18px;
+			}
+			.bottom-btn.primary {
+				background: var(--accent);
+				border-color: var(--accent);
+				color: #0f0f1a;
+				font-weight: 700;
+			}
+			.bottom-btn:active {
+				opacity: 0.7;
+			}
+
+			/* Scrollbar */
+			::-webkit-scrollbar {
+				width: 4px;
+			}
+			::-webkit-scrollbar-track {
+				background: transparent;
+			}
+			::-webkit-scrollbar-thumb {
+				background: var(--surface2);
+				border-radius: 4px;
+			}
+
+			.section-title {
+				font-size: 11px;
+				font-weight: 500;
+				color: var(--muted);
+				text-transform: uppercase;
+				letter-spacing: 1px;
+				margin: 20px 0 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="app-header">
+			<div class="app-logo">Km<span>Pro</span></div>
+			<div class="header-actions">
+				<div
+					class="btn-icon"
+					onclick="openModal('bareme-modal')"
+					title="Barème"
+				>
+					📊
+				</div>
+				<div
+					class="btn-icon"
+					onclick="openModal('export-modal')"
+					title="Export"
+				>
+					📤
+				</div>
+			</div>
+		</div>
+
+		<!-- VUE SEMAINE -->
+		<div id="week-view">
+			<div class="week-nav">
+				<div class="nav-arrow" onclick="shiftWeek(-1)">‹</div>
+				<div class="week-label" id="week-label"></div>
+				<div class="nav-arrow" onclick="shiftWeek(1)">›</div>
+			</div>
+			<div id="week-grid" class="week-grid"></div>
+			<div id="today-inline-container"></div>
+			<div class="week-summary" id="week-summary"></div>
+
+			<p class="section-title">Totaux</p>
+			<div class="periods-grid" id="periods-grid"></div>
+		</div>
+
+		<!-- BOTTOM BAR -->
+		<div class="bottom-bar" id="bottom-bar-week">
+			<button
+				class="bottom-btn"
+				onclick="openModal('bareme-modal')"
+			>
+				<span class="bb-icon">📊</span>
+				<span>Barème</span>
+			</button>
+			<button
+				class="bottom-btn"
+				onclick="openModal('export-modal')"
+			>
+				<span class="bb-icon">📤</span>
+				<span>Export</span>
+			</button>
+		</div>
+
+		<!-- MODAL BARÈME -->
+		<div
+			class="modal-overlay"
+			id="bareme-modal"
+			onclick="closeModalOutside(event, 'bareme-modal')"
+		>
+			<div class="modal-sheet">
+				<div class="modal-handle"></div>
+				<div class="modal-title">
+					📊 Barème kilométrique 2025
+				</div>
+				<div class="bareme-select-wrap">
+					<div class="bareme-label">
+						Puissance fiscale du véhicule
+					</div>
+					<select id="cv-select" onchange="updateBareme()">
+						<option value="3">3 CV et moins</option>
+						<option value="4">4 CV</option>
+						<option value="5" selected>5 CV</option>
+						<option value="6">6 CV</option>
+						<option value="7">7 CV et plus</option>
+					</select>
+				</div>
+				<div id="bareme-results"></div>
+				<button
+					class="btn-close-modal"
+					onclick="closeModal('bareme-modal')"
+				>
+					Fermer
+				</button>
+			</div>
+		</div>
+
+		<!-- MODAL EXPORT -->
+		<div
+			class="modal-overlay"
+			id="export-modal"
+			onclick="closeModalOutside(event, 'export-modal')"
+		>
+			<div class="modal-sheet">
+				<div class="modal-handle"></div>
+				<div class="modal-title">📤 Exporter</div>
+				<div class="bareme-select-wrap">
+					<div class="bareme-label">Période</div>
+					<select id="export-period">
+						<option value="week">
+							Semaine en cours
+						</option>
+						<option value="month">Mois en cours</option>
+						<option value="year" selected>
+							Année en cours
+						</option>
+						<option value="all">
+							Tout l'historique
+						</option>
+					</select>
+				</div>
+				<div class="bareme-select-wrap">
+					<div class="bareme-label">Format</div>
+					<select id="export-format">
+						<option value="csv">CSV (Excel)</option>
+					</select>
+				</div>
+				<button class="btn-export" onclick="exportData()">
+					⬇ Télécharger le CSV
+				</button>
+				<button
+					class="btn-close-modal"
+					onclick="closeModal('export-modal')"
+				>
+					Fermer
+				</button>
+			</div>
+		</div>
+
+		<script>
+			// ═══════════════════════════════════════════
+			//  DONNÉES
+			// ═══════════════════════════════════════════
+
+			const DB_NAME = "kmpro_db";
+			const STORE_NAME = "km_data";
+
+			function openDB() {
+				return new Promise((resolve, reject) => {
+					const req = indexedDB.open(DB_NAME, 1);
+
+					req.onupgradeneeded = (e) => {
+						const db = e.target.result;
+						db.createObjectStore(STORE_NAME);
+					};
+
+					req.onsuccess = (e) => resolve(e.target.result);
+					req.onerror = () => reject();
+				});
+			}
+
+			async function loadData() {
+				const idb = await openDB();
+				return new Promise((resolve) => {
+					const tx = idb.transaction(
+						STORE_NAME,
+						"readonly",
+					);
+					const store = tx.objectStore(STORE_NAME);
+					const req = store.get("data");
+
+					req.onsuccess = () => {
+						resolve(req.result || {});
+					};
+					req.onerror = () => resolve({});
+				});
+			}
+
+			async function saveData(data) {
+				const idb = await openDB();
+				const tx = idb.transaction(STORE_NAME, "readwrite");
+				const store = tx.objectStore(STORE_NAME);
+				store.put(data, "data");
+			}
+
+			let db = {};
+
+			loadData().then((data) => {
+				db = data;
+				renderWeek();
+			});
+
+			function getDay(dateStr) {
+				return db[dateStr] || { trajets: [] };
+			}
+
+			function setDay(dateStr, dayObj) {
+				db[dateStr] = dayObj;
+				saveData(db);
+			}
+
+			function kmDay(dateStr) {
+				const d = getDay(dateStr);
+				return d.trajets.reduce((s, t) => {
+					const v =
+						(parseFloat(t.arr) || 0) -
+						(parseFloat(t.dep) || 0);
+					return s + (v > 0 ? v : 0);
+				}, 0);
+			}
+
+			// ═══════════════════════════════════════════
+			//  NAVIGATION
+			// ═══════════════════════════════════════════
+
+			let currentView = "week";
+			let currentWeekOffset = 0;
+			let currentDayStr = todayStr();
+
+			function todayStr() {
+				return dateToStr(new Date());
+			}
+
+			function dateToStr(d) {
+				const y = d.getFullYear();
+				const m = String(d.getMonth() + 1).padStart(2, "0");
+				const day = String(d.getDate()).padStart(2, "0");
+				return `${y}-${m}-${day}`;
+			}
+
+			function strToDate(s) {
+				const [y, m, d] = s.split("-").map(Number);
+				return new Date(y, m - 1, d);
+			}
+
+			function getMondayOfWeek(offset = 0) {
+				const d = new Date();
+				const day = d.getDay();
+				const diff = day === 0 ? -6 : 1 - day;
+				d.setDate(d.getDate() + diff + offset * 7);
+				d.setHours(0, 0, 0, 0);
+				return d;
+			}
+
+			function setView() {}
+
+			function shiftWeek(dir) {
+				currentWeekOffset += dir;
+				renderWeek();
+			}
+
+			// ═══════════════════════════════════════════
+			//  VUE SEMAINE
+			// ═══════════════════════════════════════════
+
+			const JOURS = [
+				"Lun",
+				"Mar",
+				"Mer",
+				"Jeu",
+				"Ven",
+				"Sam",
+				"Dim",
+			];
+			const MOIS = [
+				"jan",
+				"fév",
+				"mar",
+				"avr",
+				"mai",
+				"jun",
+				"jul",
+				"aoû",
+				"sep",
+				"oct",
+				"nov",
+				"déc",
+			];
+
+			function renderWeek() {
+				const monday = getMondayOfWeek(currentWeekOffset);
+				const days = Array.from({ length: 7 }, (_, i) => {
+					const d = new Date(monday);
+					d.setDate(monday.getDate() + i);
+					return d;
+				});
+
+				const m1 = days[0],
+					m2 = days[6];
+				document.getElementById("week-label").textContent =
+					`${m1.getDate()} ${MOIS[m1.getMonth()]} – ${m2.getDate()} ${MOIS[m2.getMonth()]} ${m2.getFullYear()}`;
+
+				const grid = document.getElementById("week-grid");
+				const today = todayStr();
+				grid.innerHTML = days
+					.map((d, i) => {
+						const ds = dateToStr(d);
+						const km = kmDay(ds);
+
+						const isToday = ds === today;
+						const isSelected = ds === currentDayStr;
+						const hasData = km > 0;
+
+						return `
+    <div class="week-day-cell 
+      ${isToday ? "today" : ""} 
+      ${hasData ? "has-data" : ""} 
+      ${isSelected ? "selected" : ""}"
+      
+      onclick="selectDay('${ds}')">
+
+      <div class="wdc-name">${JOURS[i]}</div>
+      <div class="wdc-num">${d.getDate()}</div>
+      <div class="wdc-km ${km === 0 ? "zero" : ""}">
+        ${km > 0 ? km + "km" : "—"}
+      </div>
+    </div>`;
+					})
+					.join("");
+
+				const totalWeek = days.reduce(
+					(s, d) => s + kmDay(dateToStr(d)),
+					0,
+				);
+				document.getElementById("week-summary").innerHTML = `
+    <div class="ws-title">Total semaine</div>
+    <div class="ws-total">${totalWeek} <span>km</span></div>
+  `;
+
+				renderPeriods("periods-grid");
+				renderTodayInline();
+			}
+			function selectDay(dayStr) {
+				currentDayStr = dayStr;
+				renderWeek();
+			}
+
+			function renderTodayInline() {
+				const container = document.getElementById(
+					"today-inline-container",
+				);
+				const day = currentDayStr;
+
+				const dayObj = getDay(day);
+
+				if (dayObj.trajets.length === 0) {
+					dayObj.trajets = [{ dep: "", arr: "" }];
+					setDay(day, dayObj);
+				}
+
+				const d = strToDate(day);
+
+				container.innerHTML = `
+    <div class="section-title">Jour sélectionné</div>
+
+    <div class="day-total-banner">
+      <div>
+        <div class="dtb-label">Total du jour</div>
+      </div>
+      <div class="dtb-value">${kmDay(day).toFixed(1)} <span>km</span></div>
+    </div>
+
+    <div id="inline-trajets"></div>
+
+    <button class="btn-add-trajet" onclick="addTrajetInline()">＋ Ajouter un trajet</button>
+  `;
+
+				renderInlineTrajets();
+			}
+
+			function renderInlineTrajets() {
+				const day = currentDayStr;
+				const dayObj = getDay(day);
+				const container =
+					document.getElementById("inline-trajets");
+
+				container.innerHTML = dayObj.trajets
+					.map((t, i) => {
+						const diff =
+							(parseFloat(t.arr) || 0) -
+							(parseFloat(t.dep) || 0);
+						const km = diff > 0 ? diff.toFixed(1) : 0;
+						const canDelete = dayObj.trajets.length > 1;
+
+						return `
+      <div class="trajet-card">
+        <div class="trajet-num">Trajet ${i + 1}</div>
+        ${canDelete ? `<div class="btn-delete-trajet" onclick="deleteTrajetInline(${i})">✕</div>` : ""}
+
+        <div class="km-row">
+          <div class="km-label">Départ</div>
+          <input class="km-input"
+            value="${t.dep}"
+            oninput="updateKmInline(${i}, 'dep', this.value)"
+		type="text"
+inputmode="numeric"
+pattern="[0-9]*"
+		>
+        </div>
+
+        <div class="km-row">
+          <div class="km-label">Arrivée</div>
+          <input class="km-input"
+            value="${t.arr}"
+            oninput="updateKmInline(${i}, 'arr', this.value)"
+		type="text"
+inputmode="numeric"
+pattern="[0-9]*"
+		>
+        </div>
+
+        <div class="trajet-result">
+          <div class="tr-label">Parcourus</div>
+          <div class="tr-value ${km == 0 ? "zero" : ""}">${km} km</div>
+        </div>
+      </div>
+    `;
+					})
+					.join("");
+			}
+
+			function updateTrajetLine(idx) {
+				const day = currentDayStr;
+				const dayObj = getDay(day);
+
+				const t = dayObj.trajets[idx];
+
+				const diff =
+					(parseFloat(t.arr) || 0) -
+					(parseFloat(t.dep) || 0);
+
+				const km = diff > 0 ? diff.toFixed(1) : 0;
+
+				const cards = document.querySelectorAll(".trajet-card");
+				const card = cards[idx];
+
+				if (!card) return;
+
+				const el = card.querySelector(".tr-value");
+
+				if (el) {
+					el.textContent = km + " km";
+					el.className =
+						"tr-value" + (km == 0 ? " zero" : "");
+				}
+			}
+
+			function updateKmInline(idx, field, val) {
+				const day = currentDayStr;
+				const dayObj = getDay(day);
+
+				dayObj.trajets[idx][field] = val;
+				setDay(day, dayObj);
+
+				saveData(db);
+
+				updateInlineTotals();
+				updateTrajetLine(idx);
+				updateWeekTotals();
+				updateWeekGridOnly();
+			}
+
+			function updateInlineTotals() {
+				const day = currentDayStr;
+				const total = kmDay(day).toFixed(1);
+
+				const el = document.querySelector(".dtb-value");
+				if (el) {
+					el.innerHTML = `${total} <span>km</span>`;
+				}
+			}
+
+			function updateWeekTotals() {
+				const monday = getMondayOfWeek(currentWeekOffset);
+
+				const days = Array.from({ length: 7 }, (_, i) => {
+					const d = new Date(monday);
+					d.setDate(monday.getDate() + i);
+					return d;
+				});
+
+				const totalWeek = days.reduce(
+					(s, d) => s + kmDay(dateToStr(d)),
+					0,
+				);
+
+				const el = document.getElementById("week-summary");
+				if (el) {
+					el.innerHTML = `
+      <div class="ws-title">Total semaine</div>
+      <div class="ws-total">${totalWeek} <span>km</span></div>
+    `;
+				}
+			}
+
+			function addTrajetInline() {
+				const day = currentDayStr;
+				const dayObj = getDay(day);
+
+				dayObj.trajets.push({ dep: "", arr: "" });
+				setDay(day, dayObj);
+
+				saveData(db);
+
+				// 🔥 refresh affichage (OK ici)
+				renderTodayInline();
+				updateInlineTotals();
+				updateWeekTotals();
+				updateWeekGridOnly();
+			}
+
+			function deleteTrajetInline(idx) {
+				const day = currentDayStr;
+				const dayObj = getDay(day);
+
+				dayObj.trajets.splice(idx, 1);
+				setDay(day, dayObj);
+
+				saveData(db);
+
+				// 🔥 refresh affichage
+				renderTodayInline();
+				updateInlineTotals();
+				updateWeekTotals();
+				updateWeekGridOnly();
+			}
+
+			function updateWeekGridOnly() {
+				const monday = getMondayOfWeek(currentWeekOffset);
+				const today = todayStr();
+
+				const days = Array.from({ length: 7 }, (_, i) => {
+					const d = new Date(monday);
+					d.setDate(monday.getDate() + i);
+					return d;
+				});
+
+				const cells =
+					document.querySelectorAll(".week-day-cell");
+
+				days.forEach((d, i) => {
+					const ds = dateToStr(d);
+					const km = kmDay(ds);
+
+					const cell = cells[i];
+					if (!cell) return;
+
+					const kmEl = cell.querySelector(".wdc-km");
+					if (kmEl) {
+						kmEl.textContent = km > 0 ? km + "km" : "—";
+
+						if (km === 0) {
+							kmEl.classList.add("zero");
+						} else {
+							kmEl.classList.remove("zero");
+						}
+					}
+				});
+			}
+
+			// ═══════════════════════════════════════════
+			//  TOTAUX PÉRIODES
+			// ═══════════════════════════════════════════
+
+			function renderPeriods(containerId) {
+				const today = new Date();
+				const todayS = todayStr();
+
+				const monday = getMondayOfWeek(currentWeekOffset);
+				let totalWeek = 0;
+				for (let i = 0; i < 7; i++) {
+					const d = new Date(monday);
+					d.setDate(monday.getDate() + i);
+					totalWeek += kmDay(dateToStr(d));
+				}
+
+				const ym = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+				const totalMonth = Object.entries(db)
+					.filter(([k]) => k.startsWith(ym))
+					.reduce(
+						(s, [, v]) =>
+							s +
+							(v.trajets || []).reduce((ss, t) => {
+								const d =
+									(parseFloat(t.arr) || 0) -
+									(parseFloat(t.dep) || 0);
+								return ss + (d > 0 ? d : 0);
+							}, 0),
+						0,
+					);
+
+				const y = String(today.getFullYear());
+				const totalYear = Object.entries(db)
+					.filter(([k]) => k.startsWith(y))
+					.reduce(
+						(s, [, v]) =>
+							s +
+							(v.trajets || []).reduce((ss, t) => {
+								const d =
+									(parseFloat(t.arr) || 0) -
+									(parseFloat(t.dep) || 0);
+								return ss + (d > 0 ? d : 0);
+							}, 0),
+						0,
+					);
+
+				const totalDay = kmDay(currentDayStr || todayS);
+
+				const el = document.getElementById(containerId);
+				if (!el) return;
+				el.innerHTML = `
+    <div class="period-card">
+      <div class="pc-label">Aujourd'hui</div>
+      <div class="pc-value">${totalDay.toFixed(1)} <span>km</span></div>
+    </div>
+    <div class="period-card">
+      <div class="pc-label">Semaine</div>
+      <div class="pc-value">${totalWeek.toFixed(1)} <span>km</span></div>
+    </div>
+    <div class="period-card">
+      <div class="pc-label">Mois</div>
+      <div class="pc-value">${totalMonth.toFixed(1)} <span>km</span></div>
+    </div>
+    <div class="period-card">
+      <div class="pc-label">Année ${y}</div>
+      <div class="pc-value">${totalYear.toFixed(1)} <span>km</span></div>
+    </div>
+  `;
+			}
+
+			// ═══════════════════════════════════════════
+			//  BARÈME KILOMÉTRIQUE 2025
+			// ═══════════════════════════════════════════
+
+			const BAREME = {
+				3: {
+					t1: { max: 3000, r: 0.529 },
+					t2: { max: 6000, a: 0.316, b: 641 },
+					t3: { r: 0.37 },
+				},
+				4: {
+					t1: { max: 3000, r: 0.606 },
+					t2: { max: 6000, a: 0.34, b: 777 },
+					t3: { r: 0.407 },
+				},
+				5: {
+					t1: { max: 3000, r: 0.636 },
+					t2: { max: 6000, a: 0.357, b: 837 },
+					t3: { r: 0.427 },
+				},
+				6: {
+					t1: { max: 3000, r: 0.665 },
+					t2: { max: 6000, a: 0.374, b: 886 },
+					t3: { r: 0.447 },
+				},
+				7: {
+					t1: { max: 3000, r: 0.697 },
+					t2: { max: 6000, a: 0.394, b: 954 },
+					t3: { r: 0.47 },
+				},
+			};
+
+			function calcBareme(cv, km) {
+				const b = BAREME[cv];
+				if (!b) return 0;
+				if (km <= b.t1.max) return km * b.t1.r;
+				if (km <= b.t2.max) return km * b.t2.a + b.t2.b;
+				return km * b.t3.r;
+			}
+
+			function updateBareme() {
+				const cv = parseInt(
+					document.getElementById("cv-select").value,
+				);
+				const today = new Date();
+				const y = String(today.getFullYear());
+
+				const totalYear = Object.entries(db)
+					.filter(([k]) => k.startsWith(y))
+					.reduce(
+						(s, [, v]) =>
+							s +
+							(v.trajets || []).reduce((ss, t) => {
+								const d =
+									(parseFloat(t.arr) || 0) -
+									(parseFloat(t.dep) || 0);
+								return ss + (d > 0 ? d : 0);
+							}, 0),
+						0,
+					);
+
+				const totalMonth = Object.entries(db)
+					.filter(([k]) => {
+						const ym = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+						return k.startsWith(ym);
+					})
+					.reduce(
+						(s, [, v]) =>
+							s +
+							(v.trajets || []).reduce((ss, t) => {
+								const d =
+									(parseFloat(t.arr) || 0) -
+									(parseFloat(t.dep) || 0);
+								return ss + (d > 0 ? d : 0);
+							}, 0),
+						0,
+					);
+
+				const indemYear = calcBareme(cv, Math.round(totalYear));
+				const indemMonth = calcBareme(
+					cv,
+					Math.round(totalMonth),
+				);
+
+				document.getElementById("bareme-results").innerHTML = `
+    <div class="bareme-result-row">
+      <div class="brr-label">Km parcourus cette année</div>
+      <div class="brr-value">${Math.round(totalYear)} km</div>
+    </div>
+    <div class="bareme-result-row">
+      <div class="brr-label">Km ce mois-ci</div>
+      <div class="brr-value">${Math.round(totalMonth)} km</div>
+    </div>
+    <div class="bareme-result-row">
+      <div class="brr-label">Indemnité estimée (année)</div>
+      <div class="brr-value">${indemYear.toFixed(2)} €</div>
+    </div>
+    <div class="bareme-result-row">
+      <div class="brr-label">Indemnité estimée (mois)</div>
+      <div class="brr-value">${indemMonth.toFixed(2)} €</div>
+    </div>
+    <div class="bareme-result-row">
+      <div class="brr-label">Taux appliqué (tranche)</div>
+      <div class="brr-value">${(calcBareme(cv, Math.round(totalYear) + 1) - calcBareme(cv, Math.round(totalYear))).toFixed(3)} €/km</div>
+    </div>
+  `;
+			}
+
+			// ═══════════════════════════════════════════
+			//  EXPORT CSV
+			// ═══════════════════════════════════════════
+
+			function exportData() {
+				const period =
+					document.getElementById("export-period").value;
+				const today = new Date();
+				const y = today.getFullYear();
+				const m = String(today.getMonth() + 1).padStart(2, "0");
+
+				let entries = Object.entries(db).sort(([a], [b]) =>
+					a.localeCompare(b),
+				);
+
+				if (period === "week") {
+					const monday = getMondayOfWeek(currentWeekOffset);
+					const days = Array.from({ length: 7 }, (_, i) => {
+						const d = new Date(monday);
+						d.setDate(monday.getDate() + i);
+						return dateToStr(d);
+					});
+					entries = entries.filter(([k]) =>
+						days.includes(k),
+					);
+				} else if (period === "month") {
+					entries = entries.filter(([k]) =>
+						k.startsWith(`${y}-${m}`),
+					);
+				} else if (period === "year") {
+					entries = entries.filter(([k]) =>
+						k.startsWith(String(y)),
+					);
+				}
+
+				const rows = [
+					[
+						"Date",
+						"Trajet",
+						"Km départ",
+						"Km arrivée",
+						"Km parcourus",
+					],
+				];
+				entries.forEach(([dateStr, dayObj]) => {
+					const d = strToDate(dateStr);
+					const label = d.toLocaleDateString("fr-FR");
+					(dayObj.trajets || []).forEach((t, i) => {
+						const diff =
+							(parseFloat(t.arr) || 0) -
+							(parseFloat(t.dep) || 0);
+						const km = diff > 0 ? diff.toFixed(1) : "0";
+						rows.push([
+							label,
+							`Trajet ${i + 1}`,
+							t.dep || "",
+							t.arr || "",
+							km,
+						]);
+					});
+					const total = kmDay(dateStr);
+					if ((dayObj.trajets || []).length > 1) {
+						rows.push([
+							label,
+							"TOTAL JOUR",
+							"",
+							"",
+							total.toFixed(1),
+						]);
+					}
+				});
+
+				const csv = rows
+					.map((r) => r.map((c) => `"${c}"`).join(","))
+					.join("\n");
+				const blob = new Blob(["\ufeff" + csv], {
+					type: "text/csv;charset=utf-8;",
+				});
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = `kmpro_${period}_${y}${m}.csv`;
+				a.click();
+				URL.revokeObjectURL(url);
+				closeModal("export-modal");
+			}
+
+			// ═══════════════════════════════════════════
+			//  MODALS
+			// ═══════════════════════════════════════════
+
+			function openModal(id) {
+				document.getElementById(id).classList.add("open");
+				if (id === "bareme-modal") updateBareme();
+			}
+			function closeModal(id) {
+				document.getElementById(id).classList.remove("open");
+			}
+			function closeModalOutside(e, id) {
+				if (e.target === document.getElementById(id))
+					closeModal(id);
+			}
+
+			// ═══════════════════════════════════════════
+			//  INIT
+			// ═══════════════════════════════════════════
+
+			window.onload = () => {
+				renderWeek();
+			};
+
+			if ("serviceWorker" in navigator) {
+				navigator.serviceWorker.register("/sw.js");
+			}
+		</script>
+	</body>
+</html>
