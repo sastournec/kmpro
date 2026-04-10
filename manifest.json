@@ -2,7 +2,7 @@
   "name": "KmPro — Kilométrage professionnel",
   "short_name": "KmPro",
   "description": "Suivi du kilométrage professionnel pour kinésithérapeutes libéraux",
-  "start_url": "/",
+  "start_url": "/kmpro/",
   "display": "standalone",
   "background_color": "#0f0f1a",
   "theme_color": "#1a1a2e",
