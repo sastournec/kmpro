@@ -1471,11 +1471,20 @@ pattern="[0-9]*"
   URL.revokeObjectURL(url);
 }
 
-			function importBackup() {
+			async function importBackup() {
   const fileInput = document.getElementById("importFile");
   const file = fileInput.files[0];
 
-  if (!file) return alert("Choisir un fichier");
+  if (!file) {
+    alert("Choisir un fichier");
+    return;
+  }
+
+  const confirmImport = confirm(
+    "⚠️ Cette action va remplacer toutes tes données actuelles.\nContinuer ?"
+  );
+
+  if (!confirmImport) return;
 
   const reader = new FileReader();
 
@@ -1483,13 +1492,20 @@ pattern="[0-9]*"
     try {
       const data = JSON.parse(e.target.result);
 
+      // Vérification basique
+      if (typeof data !== "object") {
+        throw new Error("Format invalide");
+      }
+
       db = data;
+
       await saveData(db);
 
-      alert("Sauvegarde restaurée !");
+      alert("✅ Sauvegarde restaurée avec succès");
       location.reload();
+
     } catch (err) {
-      alert("Fichier invalide");
+      alert("❌ Fichier invalide ou corrompu");
     }
   };
 
