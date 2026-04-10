@@ -627,6 +627,21 @@
 	<body>
 		<div class="app-header">
 			<div class="app-logo">Km<span>Pro</span></div>
+			<div class="header-actions">
+
+  <input 
+    type="file" 
+    id="importFile" 
+    accept=".json"
+    style="display:none"
+    onchange="importBackup()"
+  />
+
+  <button class="btn-icon" onclick="triggerImport()">
+    📥
+  </button>
+
+</div>
 			
 		</div>
 
@@ -650,21 +665,20 @@
 
   <button class="bottom-btn" onclick="openModal('bareme-modal')">
     <div class="bb-icon">⚙️</div>
-    Barème
+    <div>Barème</div>
   </button>
 
   <button class="bottom-btn" onclick="openModal('export-modal')">
     <div class="bb-icon">⬇</div>
-    CSV
+    <div>CSV</div>
   </button>
 
-  <button class="bottom-btn primary" onclick="openModal('backup-modal')">
+  <button class="bottom-btn primary" onclick="exportBackup()">
     <div class="bb-icon">💾</div>
-    Sauvegarde
+    <div>Sauver</div>
   </button>
 
 </div>
-
 		<!-- MODAL BARÈME -->
 		<div
 			class="modal-overlay"
@@ -739,33 +753,6 @@
 				</button>
 			</div>
 		</div>
-
-		<div id="backup-modal" class="modal">
-  <div class="modal-content">
-
-    <h3>Sauvegarde des données</h3>
-
-    <button class="btn-export" onclick="exportBackup()">
-      💾 Exporter (JSON)
-    </button>
-
-    <input 
-      type="file" 
-      id="importFile" 
-      accept=".json"
-      style="margin-top:10px;"
-    />
-
-    <button class="btn-close-modal" onclick="importBackup()">
-      📥 Importer
-    </button>
-
-    <button class="btn-close-modal" onclick="closeModal('backup-modal')">
-      Fermer
-    </button>
-
-  </div>
-</div>
 
 		<script>
 
@@ -1468,18 +1455,18 @@ pattern="[0-9]*"
   a.click();
   URL.revokeObjectURL(url);
 }
+function triggerImport() {
+  document.getElementById("importFile").click();
+}
 
-			async function importBackup() {
+async function importBackup() {
   const fileInput = document.getElementById("importFile");
   const file = fileInput.files[0];
 
-  if (!file) {
-    alert("Choisir un fichier");
-    return;
-  }
+  if (!file) return;
 
   const confirmImport = confirm(
-    "⚠️ Cette action va remplacer toutes tes données actuelles.\nContinuer ?"
+    "⚠️ Remplacer toutes les données actuelles ?"
   );
 
   if (!confirmImport) return;
@@ -1490,20 +1477,18 @@ pattern="[0-9]*"
     try {
       const data = JSON.parse(e.target.result);
 
-      // Vérification basique
       if (typeof data !== "object") {
-        throw new Error("Format invalide");
+        throw new Error();
       }
 
       db = data;
-
       await saveData(db);
 
-      alert("✅ Sauvegarde restaurée avec succès");
+      alert("✅ Données restaurées");
       location.reload();
 
-    } catch (err) {
-      alert("❌ Fichier invalide ou corrompu");
+    } catch {
+      alert("❌ Fichier invalide");
     }
   };
 
