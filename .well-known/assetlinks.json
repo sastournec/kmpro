@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.kmpro.app",
+      "sha256_cert_fingerprints": [
+        "8B:7E:85:1B:CD:9C:28:0E:1B:83:61:49:0C:19:50:36:30:C8:37:F2:44:DE:A2:51:8B:17:C3:BF:5E:F3:59:9E"
+      ]
+    }
+  }
+]
